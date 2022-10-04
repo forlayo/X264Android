@@ -115,11 +115,11 @@ JNIEXPORT void releaseEncoder(JNIEnv *env, jobject thiz)
 JNIEXPORT jobject encodeFrame(JNIEnv *env, jobject thiz, jbyteArray frame, jint csp, jlong pts)
 {
     EncoderContext *ctx = (EncoderContext *)get_ctx(env, thiz);
-    if (ctx->encoder == NULL)
-        return env->NewObject(rsCls, rsInit, X264A_ERR_OPEN_ENCODER, NULL, NULL);
-
     jclass rsCls = env->FindClass(X264A_PACKAGE "X264EncodeResult");
     jmethodID rsInit = env->GetMethodID(rsCls, "<init>", "(I[BJZ)V");
+
+    if (ctx->encoder == NULL)
+        return env->NewObject(rsCls, rsInit, X264A_ERR_OPEN_ENCODER, NULL, NULL);
 
     jbyte *input_frame = env->GetByteArrayElements(frame, NULL);
 
