@@ -1,0 +1,9 @@
+
+https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/stable
+
+
+commit	eb6e7bb63738e29efd82ea3cf2a115238a89fa51	[log] [tgz]
+author	Mirko Bonadei <mbonadei@chromium.org>	Wed Apr 28 15:32:14 2021
+committer	libyuv LUCI CQ <libyuv-scoped@luci-project-accounts.iam.gserviceaccount.com>	Wed Apr 28 15:34:12 2021
+tree	3620ac92d6b7fb74659686b1dde7e22d97ee60f1
+parent	51c6d12e7deeb790dc8a85d1c50a942caffa516c [diff]

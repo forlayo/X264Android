@@ -4,6 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/X264Android.iml" filepath="$PROJECT_DIR$/.idea/modules/X264Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/x264-android/X264Android.x264-android.iml" filepath="$PROJECT_DIR$/.idea/modules/x264-android/X264Android.x264-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/x264-android/X264Android.x264-android.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/x264-android/X264Android.x264-android.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/x264-android/X264Android.x264-android.main.iml" filepath="$PROJECT_DIR$/.idea/modules/x264-android/X264Android.x264-android.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/x264-android/X264Android.x264-android.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/x264-android/X264Android.x264-android.unitTest.iml" />
     </modules>
   </component>
 </project>

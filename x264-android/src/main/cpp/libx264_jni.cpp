@@ -1,8 +1,12 @@
 #include <jni.h>
 #include <string>
+#include <libyuv.h>
 #include <x264.h>
-#include <android/log.h>
 
+#include <android/log.h>
+#define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, "x264_jni", __VA_ARGS__))
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO , "x264_jni", __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN , "x264_jni", __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "x264_jni", __VA_ARGS__))
 
 #define X264A_OK 0
@@ -14,7 +18,7 @@
 
 extern "C"
 
-    typedef struct EncoderContext
+typedef struct EncoderContext
 {
     x264_param_t params;
     x264_t *encoder;
@@ -150,14 +154,15 @@ JNIEXPORT jobject encodeFrame(JNIEnv *env, jobject thiz, jbyteArray frame, jint 
         ctx->input_picture.img.plane[2] = ctx->input_picture.img.plane[1] + y_size / 4;
         ctx->input_picture.img.i_stride[2] = ctx->params.i_width / 2;
         break;
-    case X264_CSP_BGR:
-    case X264_CSP_RGB:
-        ctx->input_picture.img.i_plane = 1;
-        ctx->input_picture.img.i_stride[0] = ctx->params.i_width * 3;
-        break;
     case X264_CSP_BGRA:
-        ctx->input_picture.img.i_plane = 1;
-        ctx->input_picture.img.i_stride[0] = ctx->params.i_width * 4;
+        ctx->input_picture.img.i_csp = X264_CSP_NV12;
+        ctx->input_picture.img.i_plane = 2;
+        ctx->input_picture.img.i_stride[1] = ctx->params.i_width;
+        libyuv::ARGBToNV12(
+                (uint8_t *)input_frame, ctx->params.i_width * 4,
+                ctx->input_picture.img.plane[0], ctx->params.i_width,
+                ctx->input_picture.img.plane[1], ctx->params.i_width,
+                ctx->params.i_width, ctx->params.i_height);
         break;
     default:
         return env->NewObject(rsCls, rsInit, X264A_ERR_NOT_SUPPORT_CSP, NULL, 0, false);
@@ -176,6 +181,34 @@ JNIEXPORT jobject encodeFrame(JNIEnv *env, jobject thiz, jbyteArray frame, jint 
                           X264A_OK, output_frame, out_pic.i_pts, out_pic.i_type == X264_TYPE_IDR);
 }
 
+JNIEXPORT void I420ToNV12(JNIEnv *env, jclass thiz,
+                                     jobject j_src_y,
+                                     jint src_stride_y,
+                                     jobject j_src_u,
+                                     jint src_stride_u,
+                                     jobject j_src_v,
+                                     jint src_stride_v,
+                                     jobject j_dst_y,
+                                     jint dst_stride_y,
+                                     jobject j_dst_uv,
+                                     jint dst_stride_uv,
+                                     jint width,
+                                     jint height) {
+    const auto* src_y =
+            static_cast<const uint8_t*>(env->GetDirectBufferAddress(j_src_y));
+    const auto* src_u =
+            static_cast<const uint8_t*>(env->GetDirectBufferAddress(j_src_u));
+    const auto* src_v =
+            static_cast<const uint8_t*>(env->GetDirectBufferAddress(j_src_v));
+    auto* dst_y =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(j_dst_y));
+    auto* dst_uv =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(j_dst_uv));
+    libyuv::I420ToNV12(src_y, src_stride_y, src_u, src_stride_u, src_v,
+                       src_stride_v, dst_y, dst_stride_y, dst_uv, dst_stride_uv,
+                       width, height);
+}
+
 JNIEXPORT jstring getVersion(JNIEnv *env, jobject thiz)
 {
     return env->NewStringUTF("1.4.0, x264: 0.164.3065 ae03d92");
@@ -185,6 +218,8 @@ static JNINativeMethod methods[] = {
     {"initEncoder", "(L" X264A_PACKAGE "X264Params;)L" X264A_PACKAGE "X264InitResult;", (void *)initEncoder},
     {"releaseEncoder", "()V", (void *)releaseEncoder},
     {"encodeFrame", "([BIJ)L" X264A_PACKAGE "X264EncodeResult;", (void *)encodeFrame},
+    {"nativeI420ToNV12",
+     "(Ljava/nio/ByteBuffer;ILjava/nio/ByteBuffer;ILjava/nio/ByteBuffer;ILjava/nio/ByteBuffer;ILjava/nio/ByteBuffer;III)V", (void *)I420ToNV12},
     {"getVersion", "()Ljava/lang/String;", (void *)getVersion},
 };
 
