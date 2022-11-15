@@ -116,7 +116,8 @@ JNIEXPORT void releaseEncoder(JNIEnv *env, jobject thiz)
 /**
  * Encode one frame.
  **/
-JNIEXPORT jobject encodeFrame(JNIEnv *env, jobject thiz, jbyteArray frame, jint csp, jlong pts)
+JNIEXPORT jobject encodeFrame(JNIEnv *env, jobject thiz,
+                              jbyteArray frame, jint csp, jlong pts)
 {
     EncoderContext *ctx = (EncoderContext *)get_ctx(env, thiz);
     jclass rsCls = env->FindClass(X264A_PACKAGE "X264EncodeResult");
